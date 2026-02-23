@@ -6,6 +6,11 @@ new file(s) in the folder you right-click.
 
 It also supports exporting **Win+V clipboard history** and clearing the clipboard + history.
 
+Most users just want:
+
+- Windows installer (latest): https://github.com/taipeiviking/PasteToFile/releases/latest
+- How-to video: https://youtu.be/HouPdC6vzxA
+
 ## Quick demo / how-to video
 
 After installing, the Finish page includes a checkbox to open this video:
