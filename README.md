@@ -43,9 +43,13 @@ PasteToFile writes files like:
 
 ## Install (recommended)
 
-Build and run the MSI:
+Build and run the MSI (it includes app-local VC++ runtime DLLs to reduce dependency issues):
 
 - `installer/bin/x64/Release/en-us/PasteToFileInstaller.msi`
+
+Optional setup EXE (includes the VC++ runtime redistributable as a chained prerequisite; may trigger UAC):
+
+- `installer/bin/x64/Release/PasteToFileSetup.exe`
 
 Notes:
 

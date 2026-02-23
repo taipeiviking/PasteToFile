@@ -1,0 +1,48 @@
+<Project Sdk="WixToolset.Sdk/5.0.0">
+  <PropertyGroup>
+    <OutputType>Bundle</OutputType>
+    <OutputName>PasteToFileSetup</OutputName>
+    <Platform>x64</Platform>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <Cultures>en-us</Cultures>
+
+    <!-- Bundle identity -->
+    <ProductName>PasteToFile</ProductName>
+    <ProductVersion>1.0.0</ProductVersion>
+    <Manufacturer>PasteToFile</Manufacturer>
+    <BundleUpgradeCode>{40CC5287-BF53-4CD4-AAD2-4B2BD79AABB9}</BundleUpgradeCode>
+
+    <!-- These are consumed by Setup.wxs via preprocessor variables. -->
+    <DefineConstants>
+      ProductName=$(ProductName);
+      ProductVersion=$(ProductVersion);
+      Manufacturer=$(Manufacturer);
+      BundleUpgradeCode=$(BundleUpgradeCode);
+      MsiPath=$(MSBuildProjectDirectory)\bin\x64\$(Configuration)\en-us\PasteToFileInstaller.msi;
+      VcRedistPath=$(MSBuildProjectDirectory)\assets\vc_redist.x64.exe
+    </DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Setup.wxs" />
+  </ItemGroup>
+
+  <!-- Ensure vc_redist is present so the bundle can be fully offline. -->
+  <Target Name="FetchVCRedist" BeforeTargets="CoreCompile">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\scripts\fetch-vc-redist.ps1&quot; -OutFile &quot;$(MSBuildProjectDirectory)\assets\vc_redist.x64.exe&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Bal.wixext" Version="5.0.0" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WixExtension Include="WixToolset.BootstrapperApplications.wixext">
+      <HintPath>$(NuGetPackageRoot)wixtoolset.bal.wixext\5.0.0\wixext5\WixToolset.BootstrapperApplications.wixext.dll</HintPath>
+    </WixExtension>
+    <WixExtension Include="WixToolset.Util.wixext">
+      <HintPath>$(NuGetPackageRoot)wixtoolset.util.wixext\5.0.0\wixext5\WixToolset.Util.wixext.dll</HintPath>
+    </WixExtension>
+  </ItemGroup>
+</Project>

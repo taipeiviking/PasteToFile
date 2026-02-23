@@ -43,6 +43,9 @@ installer/obj/
 # Generated installer RTF (contains embedded images / big hex)
 installer/assets/howto.rtf
 
+# Large prerequisite payloads (downloaded at build time)
+installer/assets/vc_redist.x64.exe
+
 # Obsolete Win11-primary (MSIX) packaging outputs
 packaging/win11-primary/out/
 

@@ -33,6 +33,11 @@
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\\scripts\\gen-howto-rtf.ps1&quot;" />
   </Target>
 
+  <!-- Stage app-local VC runtime DLLs into BinDir so the MSI is self-contained. -->
+  <Target Name="StageVCRuntime" BeforeTargets="CoreCompile">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\\..\\scripts\\stage-vc-runtime.ps1&quot; -Platform x64 -Configuration Release" />
+  </Target>
+
   <ItemGroup>
     <PackageReference Include="WixToolset.UI.wixext" Version="5.0.0" />
     <PackageReference Include="WixToolset.Util.wixext" Version="5.0.0" />

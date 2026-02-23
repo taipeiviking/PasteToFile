@@ -112,12 +112,21 @@
       <Component Id="CmpShellExt" Guid="{E7A0E6E2-5C55-4B07-84EE-90E9E1C725B5}" Bitness="always64">
         <?if $(var.InstallScope) = "perUser" ?>
           <File Id="FileShellExtDll" Source="$(var.BinDir)\PasteToFileShellExt.dll" />
+          <!-- App-local MSVC runtime (avoid requiring VC++ Redist). -->
+          <File Id="FileMsvcp140" Source="$(var.BinDir)\msvcp140.dll" />
+          <File Id="FileVcruntime140" Source="$(var.BinDir)\vcruntime140.dll" />
+          <File Id="FileVcruntime140_1" Source="$(var.BinDir)\vcruntime140_1.dll" />
+          <File Id="FileConcrt140" Source="$(var.BinDir)\concrt140.dll" />
           <!-- Per-user components must use an HKCU registry KeyPath (ICE38). -->
           <RegistryKey Root="HKCU" Key="Software\PasteToFile\Components\CmpShellExt">
             <RegistryValue Name="Installed" Type="integer" Value="1" KeyPath="yes" />
           </RegistryKey>
         <?else?>
           <File Id="FileShellExtDll" Source="$(var.BinDir)\PasteToFileShellExt.dll" KeyPath="yes" />
+          <File Id="FileMsvcp140" Source="$(var.BinDir)\msvcp140.dll" />
+          <File Id="FileVcruntime140" Source="$(var.BinDir)\vcruntime140.dll" />
+          <File Id="FileVcruntime140_1" Source="$(var.BinDir)\vcruntime140_1.dll" />
+          <File Id="FileConcrt140" Source="$(var.BinDir)\concrt140.dll" />
         <?endif?>
 
         <!-- COM registration (equivalent to DllRegisterServer without calling regsvr32) -->

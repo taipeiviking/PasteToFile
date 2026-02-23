@@ -6,6 +6,38 @@ Output MSI:
 
 - `installer/bin/x64/Release/en-us/PasteToFileInstaller.msi`
 
+Optional setup EXE (chains the official VC++ redistributable; may trigger UAC/admin):
+
+- `installer/bin/x64/Release/PasteToFileSetup.exe`
+
+## Dependency strategy
+
+To reduce install-time failures on machines missing the VC++ runtime, the MSI includes the required
+MSVC runtime DLLs app-local (next to `PasteToFileShellExt.dll` and `PasteToFileHelper.exe`).
+
+The setup EXE exists as an alternate path that can install the official VC++ redistributable.
+
+## Build
+
+From a Developer PowerShell (or any shell where MSBuild is available):
+
+1) Build the solution (produces `bin/x64/Release/*.dll` and `bin/x64/Release/*.exe`):
+
+- `MSBuild PasteToFile.sln /m /t:Build /p:Configuration=Release /p:Platform=x64`
+
+2) Build the MSI (restores WiX NuGet packages):
+
+- `MSBuild installer/PasteToFileInstaller.wixproj /restore /t:Build /p:Configuration=Release /p:Platform=x64`
+
+3) Build the setup bundle EXE (downloads `vc_redist.x64.exe` at build time, then bundles it + the MSI):
+
+- `MSBuild installer/PasteToFileSetup.wixproj /restore /t:Build /p:Configuration=Release /p:Platform=x64`
+
+Notes:
+
+- The MSI build runs `scripts/stage-vc-runtime.ps1` to stage the runtime DLLs into `bin/x64/Release/` before linking.
+- The staging script uses the VS redist folder when available, otherwise falls back to the system runtime in `C:\Windows\Sysnative`.
+
 ## Goals
 
 - Per-user install by default (fast, no admin prompt)

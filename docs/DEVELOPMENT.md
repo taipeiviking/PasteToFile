@@ -11,6 +11,11 @@
 - Open `PasteToFile.sln`
 - Build `Debug|x64` or `Release|x64`
 
+Installer builds:
+
+- MSI: `MSBuild installer/PasteToFileInstaller.wixproj /restore /t:Build /p:Configuration=Release /p:Platform=x64`
+- Setup EXE (optional): `MSBuild installer/PasteToFileSetup.wixproj /restore /t:Build /p:Configuration=Release /p:Platform=x64`
+
 ## Dev install scripts (recommended)
 
 Shell extensions run inside `explorer.exe`. For reliable iteration, use the dev scripts:

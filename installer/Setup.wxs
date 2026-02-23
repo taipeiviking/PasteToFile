@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <?define ProductName="$(var.ProductName)" ?>
+  <?define ProductVersion="$(var.ProductVersion)" ?>
+  <?define Manufacturer="$(var.Manufacturer)" ?>
+  <?define BundleUpgradeCode="$(var.BundleUpgradeCode)" ?>
+  <?define MsiPath="$(var.MsiPath)" ?>
+  <?define VcRedistPath="$(var.VcRedistPath)" ?>
+
+  <Bundle
+    Name="$(var.ProductName)"
+    Manufacturer="$(var.Manufacturer)"
+    Version="$(var.ProductVersion)"
+    UpgradeCode="$(var.BundleUpgradeCode)"
+    Compressed="yes"
+    IconSourceFile="assets\PTF_app.ico">
+
+    <!-- Use WiX Standard BA (WixStdBA) with an embedded RTF license page. -->
+    <BootstrapperApplication>
+      <bal:WixStandardBootstrapperApplication
+        Theme="rtfLicense"
+        LicenseFile="assets\howto-template.rtf"
+        SuppressOptionsUI="yes" />
+    </BootstrapperApplication>
+
+    <!-- Burn variable populated by registry search (default 0). -->
+    <Variable Name="VCRedistInstalled" Type="numeric" Value="0" />
+
+    <Chain>
+      <!-- VC++ runtime for MSVCP140/VCRUNTIME140/VCRUNTIME140_1 (required by both binaries). -->
+      <ExePackage
+        Id="VCRedistX64"
+        DisplayName="Microsoft Visual C++ 2015-2022 Redistributable (x64)"
+        SourceFile="$(var.VcRedistPath)"
+        PerMachine="yes"
+        Permanent="yes"
+        Vital="yes"
+        DetectCondition="VCRedistInstalled = 1"
+        InstallCondition="VCRedistInstalled &lt;&gt; 1"
+        InstallArguments="/install /quiet /norestart"
+        RepairArguments="/repair /quiet /norestart" />
+
+      <!-- The actual per-user MSI (shell extension + helper). -->
+      <MsiPackage
+        Id="PasteToFileMsi"
+        SourceFile="$(var.MsiPath)"
+        Vital="yes" />
+    </Chain>
+  </Bundle>
+
+  <Fragment>
+    <!-- VC++ x64 runtime detection (Installed=1 when present). -->
+    <util:RegistrySearch
+      Id="SearchVCRedistX64Installed"
+      Root="HKLM"
+      Key="SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64"
+      Value="Installed"
+      Variable="VCRedistInstalled"
+      Result="value"
+      Bitness="always64" />
+  </Fragment>
+</Wix>

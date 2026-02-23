@@ -10,6 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PasteToFileShellExt", "src\
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "PasteToFileInstaller", "installer\PasteToFileInstaller.wixproj", "{B0C0B1B3-8F3B-4C83-AE95-273B5F0A0BCF}"
 EndProject
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "PasteToFileSetup", "installer\PasteToFileSetup.wixproj", "{0E5878B4-A717-4690-AE77-1FE36DBE3983}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -35,6 +37,11 @@ Global
 		{B0C0B1B3-8F3B-4C83-AE95-273B5F0A0BCF}.Debug|x64.Build.0 = Debug|x64
 		{B0C0B1B3-8F3B-4C83-AE95-273B5F0A0BCF}.Release|x64.ActiveCfg = Release|x64
 		{B0C0B1B3-8F3B-4C83-AE95-273B5F0A0BCF}.Release|x64.Build.0 = Release|x64
+
+		{0E5878B4-A717-4690-AE77-1FE36DBE3983}.Debug|x64.ActiveCfg = Debug|x64
+		{0E5878B4-A717-4690-AE77-1FE36DBE3983}.Debug|x64.Build.0 = Debug|x64
+		{0E5878B4-A717-4690-AE77-1FE36DBE3983}.Release|x64.ActiveCfg = Release|x64
+		{0E5878B4-A717-4690-AE77-1FE36DBE3983}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

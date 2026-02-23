@@ -3,7 +3,7 @@
 ### Setup
 
 - Build `x64` `Release` in Visual Studio.
-- Install the shell extension (run PowerShell as Administrator). Recommended while iterating:
+- Install the shell extension (PowerShell; per-user install does not require admin). Recommended while iterating:
   - `powershell -ExecutionPolicy Bypass -File scripts\\dev-reinstall-and-restart-explorer.ps1`
 - If you want to remove all PasteToFile integration before testing:
   - `powershell -ExecutionPolicy Bypass -File scripts\\reset-all.ps1`
@@ -14,6 +14,10 @@ MSI (end-user install):
 
 - `installer\\bin\\x64\\Release\\en-us\\PasteToFileInstaller.msi`
 - Installer will stop Explorer during install and restart it on Finish.
+
+Setup EXE (alternate, chains VC++ runtime redistributable; may require admin/UAC):
+
+- `installer\\bin\\x64\\Release\\PasteToFileSetup.exe`
 
 Logs:
 
