@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <?define ProductName="$(var.ProductName)" ?>
+  <?define ProductVersion="$(var.ProductVersion)" ?>
+  <?define Manufacturer="$(var.Manufacturer)" ?>
+  <?define BinDir="$(var.BinDir)" ?>
+  <?define InstallScope="$(var.InstallScope)" ?>
+  <?define ClassesRoot="$(var.ClassesRoot)" ?>
+
+  <Package
+    Name="$(var.ProductName)"
+    Manufacturer="$(var.Manufacturer)"
+    Version="$(var.ProductVersion)"
+    UpgradeCode="{9E4CE690-A6EE-43AE-83C6-5F6B2C3B58D8}"
+    Scope="$(var.InstallScope)"
+    InstallerVersion="500"
+    Compressed="yes">
+
+    <!-- Prevent MSI/Restart Manager from trying (and failing) to close apps mid-install. -->
+    <Property Id="MSIRESTARTMANAGERCONTROL" Value="Disable" />
+
+    <MajorUpgrade
+      Schedule="afterInstallValidate"
+      DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <Property Id="ARPPRODUCTICON" Value="PTFICON" />
+    <!-- Product icon shown in Apps & Features / Programs and Features. -->
+    <Icon Id="PTFICON" SourceFile="assets\PTF_app.ico" />
+
+    <?if $(var.InstallScope) = "perUser" ?>
+      <StandardDirectory Id="LocalAppDataFolder">
+        <Directory Id="INSTALLROOT" Name="PasteToFile" />
+      </StandardDirectory>
+    <?else?>
+      <StandardDirectory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLROOT" Name="PasteToFile" />
+      </StandardDirectory>
+    <?endif?>
+
+    <Feature Id="MainFeature" Title="$(var.ProductName)" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+
+    <!-- Built-in MSI UI with install directory selection. We reuse the license dialog
+         to show "how to use PasteToFile" (including Win+V clipboard history). -->
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLROOT" />
+    <WixVariable Id="WixUILicenseRtf" Value="assets\howto.rtf" />
+    <!-- Welcome/Finish dialog background bitmap (493x312). -->
+    <WixVariable Id="WixUIDialogBmp" Value="assets\ptf_logo_493x312.png" />
+    <!-- Top banner for internal WixUI dialogs (493x58). -->
+    <WixVariable Id="WixUIBannerBmp" Value="assets\ptf_logo_493x58.png" />
+
+    <Property Id="WIXUI_EXITDIALOGOPTIONALTEXT"
+              Value="Explorer will now restart to take effect. After that, right-click in Explorer to see the new menu item PasteToFile." />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
+              Value="Watch the how-to video (opens your browser)" />
+  </Package>
+
+  <Fragment>
+    <!-- Shell extension DLL is loaded in-process by Explorer, so we stop Explorer before InstallFiles. -->
+
+    <SetProperty Id="StopExplorer"
+                 Sequence="execute"
+                 Before="StopExplorer"
+                 Value="&quot;[%ComSpec]&quot; /c &quot;tasklist /fi &quot;&quot;imagename eq explorer.exe&quot;&quot; | find /i &quot;&quot;explorer.exe&quot;&quot; &gt;nul &amp;&amp; (taskkill /im explorer.exe &gt;nul 2&gt;&amp;1 &amp; timeout /t 1 /nobreak &gt;nul &amp; taskkill /f /im explorer.exe &gt;nul 2&gt;&amp;1) &amp; tasklist /fi &quot;&quot;imagename eq explorer.exe&quot;&quot; | find /i &quot;&quot;explorer.exe&quot;&quot; &gt;nul &amp;&amp; exit /b 1 || exit /b 0&quot;" />
+    <CustomAction Id="StopExplorer"
+                  BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)"
+                  DllEntry="WixQuietExec"
+                  Execute="deferred"
+                  Impersonate="yes"
+                  Return="check" />
+
+    <!-- Restart Explorer only when user clicks Finish. -->
+    <SetProperty Id="WixQuietExecCmdLine"
+                 Value="&quot;[%ComSpec]&quot; /c &quot;start &quot;&quot;&quot;&quot; explorer.exe&quot;"
+                 Before="StartExplorer"
+                 Sequence="execute" />
+    <CustomAction Id="StartExplorer"
+                  BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)"
+                  DllEntry="WixQuietExec"
+                  Execute="immediate"
+                  Return="ignore" />
+
+    <!-- Open the how-to YouTube link from the ExitDialog checkbox. -->
+    <SetProperty Id="WixQuietExecCmdLine"
+                 Value="&quot;[%ComSpec]&quot; /c &quot;start &quot;&quot;&quot;&quot; &quot;https://youtu.be/HouPdC6vzxA&quot;&quot;"
+                 Before="OpenHowToVideo"
+                 Sequence="execute" />
+    <CustomAction Id="OpenHowToVideo"
+                  BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)"
+                  DllEntry="WixQuietExec"
+                  Execute="immediate"
+                  Return="ignore" />
+
+    <InstallExecuteSequence>
+      <Custom Action="StopExplorer" Before="InstallFiles" Condition="1" />
+    </InstallExecuteSequence>
+
+    <UI>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="StartExplorer" Condition="1" />
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="OpenHowToVideo"
+               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT (REMOVE~=&quot;ALL&quot;)" />
+    </UI>
+  </Fragment>
+
+  <Fragment>
+    <!-- Files -->
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLROOT">
+      <Component Id="CmpShellExt" Guid="{E7A0E6E2-5C55-4B07-84EE-90E9E1C725B5}" Bitness="always64">
+        <?if $(var.InstallScope) = "perUser" ?>
+          <File Id="FileShellExtDll" Source="$(var.BinDir)\PasteToFileShellExt.dll" />
+          <!-- Per-user components must use an HKCU registry KeyPath (ICE38). -->
+          <RegistryKey Root="HKCU" Key="Software\PasteToFile\Components\CmpShellExt">
+            <RegistryValue Name="Installed" Type="integer" Value="1" KeyPath="yes" />
+          </RegistryKey>
+        <?else?>
+          <File Id="FileShellExtDll" Source="$(var.BinDir)\PasteToFileShellExt.dll" KeyPath="yes" />
+        <?endif?>
+
+        <!-- COM registration (equivalent to DllRegisterServer without calling regsvr32) -->
+        <RegistryKey Root="$(var.ClassesRoot)" Key="Software\Classes\CLSID\{4DFB17E1-9D8A-4E7D-8AA0-F1E8D1E3A6B7}">
+          <RegistryValue Type="string" Value="PasteToFile Context Menu" />
+          <RegistryKey Key="InprocServer32">
+            <RegistryValue Type="string" Value="[#FileShellExtDll]" />
+            <RegistryValue Name="ThreadingModel" Type="string" Value="Apartment" />
+          </RegistryKey>
+        </RegistryKey>
+
+        <!-- Mark as an approved shell extension (helps Explorer load classic handlers) -->
+        <?if $(var.InstallScope) = "perMachine" ?>
+          <RegistryKey Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved">
+            <RegistryValue Name="{4DFB17E1-9D8A-4E7D-8AA0-F1E8D1E3A6B7}" Type="string" Value="PasteToFile" />
+          </RegistryKey>
+        <?endif?>
+
+        <!-- Context menu handlers -->
+        <RegistryKey Root="$(var.ClassesRoot)" Key="Software\Classes\AllFilesystemObjects\shellex\ContextMenuHandlers\PasteToFile">
+          <RegistryValue Type="string" Value="{4DFB17E1-9D8A-4E7D-8AA0-F1E8D1E3A6B7}" />
+        </RegistryKey>
+        <RegistryKey Root="$(var.ClassesRoot)" Key="Software\Classes\Directory\shellex\ContextMenuHandlers\PasteToFile">
+          <RegistryValue Type="string" Value="{4DFB17E1-9D8A-4E7D-8AA0-F1E8D1E3A6B7}" />
+        </RegistryKey>
+        <RegistryKey Root="$(var.ClassesRoot)" Key="Software\Classes\Directory\Background\shellex\ContextMenuHandlers\PasteToFile">
+          <RegistryValue Type="string" Value="{4DFB17E1-9D8A-4E7D-8AA0-F1E8D1E3A6B7}" />
+        </RegistryKey>
+      </Component>
+
+      <Component Id="CmpHelperExe" Guid="{E0DE1AE0-BCB9-4D79-9081-4D7B04C5F205}" Bitness="always64">
+        <?if $(var.InstallScope) = "perUser" ?>
+          <File Id="FileHelperExe" Source="$(var.BinDir)\PasteToFileHelper.exe" />
+          <RegistryKey Root="HKCU" Key="Software\PasteToFile\Components\CmpHelperExe">
+            <RegistryValue Name="Installed" Type="integer" Value="1" KeyPath="yes" />
+          </RegistryKey>
+
+          <!-- Ensure per-user install folder is removed (ICE64). -->
+          <RemoveFile Id="RmAllFiles" Name="*.*" On="uninstall" />
+          <RemoveFolder Id="RmInstallRoot" On="uninstall" />
+        <?else?>
+          <File Id="FileHelperExe" Source="$(var.BinDir)\PasteToFileHelper.exe" KeyPath="yes" />
+        <?endif?>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

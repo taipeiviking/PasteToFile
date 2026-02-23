@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization xmlns="http://wixtoolset.org/schemas/v4/wxl" Culture="en-us">
+  <!-- Keep text short/step-by-step on each built-in WixUI page. -->
+  <String Id="WelcomeDlgDescription" Value="PasteToFile adds a PasteToFile submenu to Explorer’s classic right-click menu. It saves clipboard content into new file(s) in the folder you right-click." />
+
+  <!-- This dialog hosts our howto.rtf; keep the caption short. -->
+  <String Id="LicenseAgreementDlgTitle" Value="How to use PasteToFile" />
+  <String Id="LicenseAgreementDlgDescription" Value="Quick guide (includes Win+V clipboard history). Click Next to continue." />
+
+  <String Id="InstallDirDlgDescription" Value="PasteToFile will be installed to this folder. The helper EXE must remain next to the shell extension DLL." />
+
+  <String Id="VerifyReadyDlgDescription" Value="Click Install. Explorer will restart automatically at the end so the context menu can load." />
+
+</WixLocalization>
+

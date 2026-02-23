@@ -1,0 +1,49 @@
+<Project Sdk="WixToolset.Sdk/5.0.0">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <Platform>x64</Platform>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <Cultures>en-us</Cultures>
+
+    <!-- Installer identity -->
+    <ProductName>PasteToFile</ProductName>
+    <ProductVersion>1.0.0</ProductVersion>
+    <Manufacturer>PasteToFile</Manufacturer>
+
+    <!-- Fixed to per-user to avoid side-by-side installs (per-user vs per-machine). -->
+    <InstallScope>perUser</InstallScope>
+    <ClassesRoot>HKCU</ClassesRoot>
+
+    <!-- These are consumed by Product.wxs via preprocessor variables. -->
+    <DefineConstants>
+      ProductName=$(ProductName);
+      ProductVersion=$(ProductVersion);
+      Manufacturer=$(Manufacturer);
+      BinDir=$(MSBuildProjectDirectory)\..\bin\x64\Release;
+      InstallScope=$(InstallScope);
+      ClassesRoot=$(ClassesRoot)
+    </DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+  </ItemGroup>
+
+  <Target Name="GenerateHowToRtf" BeforeTargets="CoreCompile">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\\scripts\\gen-howto-rtf.ps1&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.0" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WixExtension Include="WixToolset.UI.wixext">
+      <HintPath>$(NuGetPackageRoot)wixtoolset.ui.wixext\5.0.0\wixext5\WixToolset.UI.wixext.dll</HintPath>
+    </WixExtension>
+    <WixExtension Include="WixToolset.Util.wixext">
+      <HintPath>$(NuGetPackageRoot)wixtoolset.util.wixext\5.0.0\wixext5\WixToolset.Util.wixext.dll</HintPath>
+    </WixExtension>
+  </ItemGroup>
+</Project>

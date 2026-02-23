@@ -1,0 +1,54 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+
+# Build outputs (repo root)
+bin/
+x64/
+build/
+
+# Local test outputs
+_testout*/
+_autotest*/
+
+# C++ build artifacts
+**/Debug/
+**/Release/
+**/x64/
+**/Win32/
+**/ARM64/
+**/obj/
+**/*.tlog/
+**/*.ilk
+**/*.pdb
+**/*.ipch
+**/*.iobj
+**/*.ipdb
+**/*.pch
+**/*.idb
+**/*.log
+
+# WiX / MSI outputs
+installer/bin/
+installer/obj/
+**/*.msi
+**/*.wixpdb
+**/*.cab
+
+# Generated installer RTF (contains embedded images / big hex)
+installer/assets/howto.rtf
+
+# Obsolete Win11-primary (MSIX) packaging outputs
+packaging/win11-primary/out/
+
+# Large local recordings (keep out of git)
+media/
+
+# Misc local scratch
+query
+
