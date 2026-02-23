@@ -8,7 +8,7 @@ It also supports exporting **Win+V clipboard history** and clearing the clipboar
 
 Most users just want:
 
-- Windows installer (latest): https://github.com/taipeiviking/PasteToFile/releases/latest
+- Windows installer (latest MSI): https://github.com/taipeiviking/PasteToFile/releases/latest/download/PasteToFileInstaller.msi
 - How-to video: https://youtu.be/HouPdC6vzxA
 
 ## Quick demo / how-to video
